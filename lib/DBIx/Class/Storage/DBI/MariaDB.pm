@@ -176,7 +176,7 @@ sub lag_behind_master {
 
 =head1 NAME
 
-DBIx::Class::Storage::DBI::mysql - Storage::DBI class implementing MariaDB specifics
+DBIx::Class::Storage::DBI::MariaDB - Storage::DBI class implementing MariaDB specifics
 
 =head1 SYNOPSIS
 
