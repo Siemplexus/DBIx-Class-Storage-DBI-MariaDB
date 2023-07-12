@@ -1,6 +1,9 @@
 use strict;
 use warnings;
+
 use Test::More;
+use Test::Exception;
+
 use lib qw(t/lib);
 use MyApp::Schema;
 
@@ -44,6 +47,28 @@ subtest 'LIMIT support' => sub {
     $it->next;
     $it->next;
     is( $it->next, undef, 'next past end of resultset ok' );
+};
+
+subtest 'LIMIT with select-lock' => sub {
+    lives_ok {
+        $schema->txn_do(sub {
+            isa_ok(
+                $schema->resultset('Author')->find({id => 1}, {for => 'update', rows => 1}),
+                'MyApp::Schema::Author'
+            );
+        });
+    } 'Limited FOR UPDATE select works';
+};
+
+subtest 'LIMIT with shared lock' => sub {
+    lives_ok {
+        $schema->txn_do(sub {
+            isa_ok(
+                $schema->resultset('Author')->find({id => 1}, {for => 'shared'}),
+                'MyApp::Schema::Author'
+            );
+        });
+    } 'LOCK IN SHARE MODE select works';
 };
 
 done_testing();
