@@ -10,4 +10,6 @@ BEGIN {
     use_ok('DBIx::Class::Storage::DBI::MariaDB') || print "Bail out!\n";
 }
 
-diag("Testing DBIx::Class::Storage::DBI::MariaDB $DBIx::Class::Storage::DBI::MariaDB::VERSION, Perl $], $^X");
+diag(
+"Testing DBIx::Class::Storage::DBI::MariaDB $DBIx::Class::Storage::DBI::MariaDB::VERSION, Perl $], $^X"
+);
