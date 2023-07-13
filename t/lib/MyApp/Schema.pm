@@ -68,7 +68,7 @@ __PACKAGE__->add_columns(
     year => {
         data_type => 'VARCHAR',
         size      => 100,
-    },
+    }
 );
 __PACKAGE__->set_primary_key('cdid');
 __PACKAGE__->add_unique_constraint( [qw/artist title/] );
@@ -80,6 +80,29 @@ __PACKAGE__->belongs_to(
         is_deferrable => 1,
         proxy         => { artist_name => 'name' },
     }
+);
+__PACKAGE__->has_many(
+    cd_to_producer => 'MyApp::Schema::CDToProducer' => 'cd' );
+__PACKAGE__->many_to_many( producers => cd_to_producer => 'producer' );
+
+package MyApp::Schema::CDToProducer;
+
+use warnings;
+use strict;
+use base 'DBIx::Class::Core';
+
+__PACKAGE__->table('cd_to_producer');
+__PACKAGE__->add_columns(
+    cd        => { data_type => 'INTEGER' },
+    producer  => { data_type => 'INTEGER' },
+);
+__PACKAGE__->set_primary_key(qw/cd producer/);
+
+__PACKAGE__->belongs_to( 'cd', 'MyApp::Schema::CD' );
+__PACKAGE__->belongs_to(
+    'producer', 'MyApp::Schema::Producer',
+    { 'foreign.producerid' => 'self.producer' },
+    { on_delete            => undef, on_update => undef },
 );
 
 package MyApp::Schema::Owner;
@@ -165,10 +188,11 @@ use strict;
 use warnings;
 use base 'DBIx::Class::Schema';
 
-__PACKAGE__->register_class( 'Artist',   'MyApp::Schema::Artist' );
-__PACKAGE__->register_class( 'CD',       'MyApp::Schema::CD' );
-__PACKAGE__->register_class( 'Owner',    'MyApp::Schema::Owner' );
-__PACKAGE__->register_class( 'Producer', 'MyApp::Schema::Producer' );
+__PACKAGE__->register_class( 'Artist',       'MyApp::Schema::Artist' );
+__PACKAGE__->register_class( 'CD',           'MyApp::Schema::CD' );
+__PACKAGE__->register_class( 'Owner',        'MyApp::Schema::Owner' );
+__PACKAGE__->register_class( 'Producer',     'MyApp::Schema::Producer' );
+__PACKAGE__->register_class( 'CDToProducer', 'MyApp::Schema::CDToProducer' );
 __PACKAGE__->register_class( 'BooksInLibrary',
     'MyApp::Schema::BooksInLibrary' );
 __PACKAGE__->ensure_class_loaded('DBIx::Class::Storage::DBI::MariaDB');

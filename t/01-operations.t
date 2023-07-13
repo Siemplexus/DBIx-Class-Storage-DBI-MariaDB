@@ -1,3 +1,5 @@
+# tests inpsired/copied from https://github.com/Perl5/DBIx-Class/blob/maint/0.0828xx/t/71mysql.t
+
 use strict;
 use warnings;
 
@@ -43,6 +45,26 @@ $dbh->do(
     title VARCHAR(100) NOT NULL,
     price INTEGER
 )"
+);
+$dbh->do("DROP TABLE IF EXISTS cd");
+$dbh->do(
+    "CREATE TABLE cd (
+    cdid INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    artist INTEGER,
+    title TEXT,
+    year DATE
+)"
+);
+$dbh->do("DROP TABLE IF EXISTS producer");
+$dbh->do(
+    "CREATE TABLE producer (
+    producerid INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name TEXT
+)"
+);
+$dbh->do("DROP TABLE IF EXISTS cd_to_producer");
+$dbh->do(
+    "CREATE TABLE cd_to_producer (cd INTEGER, producer INTEGER)"
 );
 
 subtest 'sqlt_type overrides' => sub {
@@ -146,6 +168,38 @@ subtest 'distinct + prefetch on tables with identically named columns' => sub {
             'Prefetched grouped search returns correct number of rows' );
         is( $_->count, 1, 'Prefetched grouped search returns correct count' );
     }
+};
+
+my $cd = $schema->resultset('CD')->create({});
+my $producer = $schema->resultset('Producer')->create({});
+lives_ok { $cd->set_producers([$producer]) } 'set_relationship doesnt die';
+
+subtest 'joins' => sub {
+    my $artist = $schema->resultset('Artist')->next;
+    my $cd = $schema->resultset('CD')->next;
+    $cd->set_from_related('artist', $artist);
+    $cd->update;
+
+    my $rs = $schema->resultset('CD')->search({}, {prefetch => 'artist'});
+
+    lives_ok sub {
+        my $cd = $rs->next;
+        is($cd->artist->name, $artist->name, 'Prefetched artist');
+    }, 'join does not throw';
+};
+
+subtest 'null in search' => sub {
+    my $ansi_schema = MyApp::Schema->connect($dsn, $user, $pass, { on_connect_call => 'set_strict_mode' });
+    $ansi_schema->resultset('Artist')->create({ name => 'last created artist' });
+
+    ok(my $artist1_rs = $ansi_schema->resultset('Artist')->search({artistid => 6666}), 'Created an artist resultset of 6666');
+    is($artist1_rs->count, 0, 'Got no returned rows');
+
+    ok(my $artist2_rs = $ansi_schema->resultset('Artist')->search({artistid => undef}), 'Created an artist resultset of undef');
+    is($artist2_rs->count, 0, 'Got no returned rows');
+
+    my $artist = $artist2_rs->single;
+    is($artist, undef, 'nothing found');
 };
 
 done_testing();
