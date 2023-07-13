@@ -1,0 +1,6 @@
+#!include_default
+
+\b\.github$
+^\.gitignore
+^\.perltidyrc
+^MANIFEST\.SKIP

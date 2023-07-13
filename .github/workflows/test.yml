@@ -1,0 +1,46 @@
+name: Tests
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        perl: ['5.38', '5.36', '5.34', '5.30', '5.26', '5.20', '5.16']
+    name: Testing with Perl ${{ matrix.perl }}
+    services:
+      mariadb:
+        image: mariadb:latest
+        ports:
+          - 3306
+        env:
+          MYSQL_USER: user
+          MYSQL_PASSWORD: topsecret
+          MYSQL_DATABASE: dbix_mariadb_test
+          MYSQL_ROOT_PASSWORD: topsecret
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up perl
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+            perl-version: ${{ matrix.perl }}
+
+      - name: installdeps
+        run: cpanm --notest --installdeps .
+
+      - name: build
+        run: perl Makefile.PL && make && make manifest
+
+      - name: make test
+        env:
+          DBICTEST_MARIADB_DSN: "dbi:MariaDB:database=dbix_mariadb_test;host=127.0.0.1;port=${{ job.services.mariadb.ports[3306] }}"
+          DBICTEST_MARIADB_USER: "user"
+          DBICTEST_MARIADB_PASS: "topsecret"
+        run: make test
+
+      - name: make disttest
+        env:
+          DBICTEST_MARIADB_DSN: "dbi:MariaDB:database=dbix_mariadb_test;host=127.0.0.1;port=${{ job.services.mariadb.ports[3306] }}"
+          DBICTEST_MARIADB_USER: "user"
+          DBICTEST_MARIADB_PASS: "topsecret"
+        run: make disttest
