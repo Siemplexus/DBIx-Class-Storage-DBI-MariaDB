@@ -198,6 +198,4 @@ __PACKAGE__->register_class( 'BooksInLibrary',
 __PACKAGE__->ensure_class_loaded('DBIx::Class::Storage::DBI::MariaDB');
 __PACKAGE__->ensure_class_loaded('DBIx::Class::Storage::DBI');
 
-# __PACKAGE__->inject_base('DBIx::Class::Storage::DBI', 'DBIx::Class::Storage::DBI::MariaDB');
-
 1;

@@ -5,6 +5,9 @@ use warnings;
 
 use Test::More;
 use Test::Exception;
+use Test::Warn;
+
+use Scalar::Util qw/weaken/;
 
 use lib qw(t/lib);
 use MyApp::Schema;
@@ -52,7 +55,7 @@ $dbh->do(
     cdid INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
     artist INTEGER,
     title TEXT,
-    year DATE
+    year TEXT
 )"
 );
 $dbh->do("DROP TABLE IF EXISTS producer");
@@ -202,4 +205,146 @@ subtest 'null in search' => sub {
     is($artist, undef, 'nothing found');
 };
 
-done_testing();
+subtest 'grouped counts' => sub {
+    my $ansi_schema = MyApp::Schema->connect($dsn, $user, $pass, {
+        on_connect_call => 'set_strict_mode',
+        quote_char => '`',
+    });
+    my $rs = $ansi_schema->resultset('CD');
+
+    my $years;
+    $years->{$_->year || scalar keys %$years}++ for $rs->all;
+
+    lives_ok sub {
+        is(
+            $rs->search({}, {group_by => 'year'})->count,
+            scalar keys %$years,
+            'Grouped count correct'
+        );
+    }, 'Grouped count does not throw';
+
+    lives_ok sub {
+        $ansi_schema->resultset('Owner')->search({}, {
+            join => 'books', group_by => ['me.id', 'books.id']
+        })->count;
+    }, 'Count on grouped columns with the same name does not throw';
+};
+
+subtest 'self-referential double-subquery' => sub {
+    my $rs = $schema->resultset('Artist')->search({name => {-like => 'baby_%'}});
+    $rs->populate([map { [$_] } ('name', map { "baby_$_" } (1..10))]);
+
+    my ($count_sql, @count_bind) = @${$rs->count_rs->as_query};
+    my $complex_rs = $schema->resultset('Artist')->search(
+        {artistid => {
+            -in => $rs->get_column('artistid')->as_query
+        }},
+    );
+    $complex_rs->update({name => \["CONCAT(`name`, '_bell_out_of_', $count_sql)", @count_bind]});
+    
+    for (1..10) {
+        is(
+            $schema->resultset('Artist')->search({name => "baby_${_}_bell_out_of_10"})->count,
+            1,
+            'Correctly updated babybell $_'
+        );
+    }
+
+    is($rs->count, 10, '10 artists present');
+    $complex_rs->delete;
+    is($rs->count, 0, '10 artists correctly deleted');
+
+    $rs->create({
+        name => 'baby_with_cd',
+        cds => [{title => 'babeeeee', year => '1712'}],
+    });
+    is($rs->count, 1, 'Artist with CD created');
+    $schema->resultset('CD')->search_related('artist',
+        {'artist.name' => {-like => 'baby_with_%'}}
+    )->delete;
+    is($rs->count, 0, 'Artist with CD deleted');
+};
+
+subtest 'zero in search' => sub {
+    my $cds_per_year = {
+        2001 => 2,
+        2002 => 1,
+        2005 => 3,
+    };
+
+    my $rs = $schema->resultset('CD');
+    $rs->delete;
+    for my $y (keys %$cds_per_year) {
+        for my $c (1..$cds_per_year->{$y}) {
+            $rs->create({title => "CD $y-$c", artist => 1, year => "$y-01-01"});
+        }
+    }
+    is($rs->count, 6, 'CDs created successfully');
+
+    $rs = $rs->search({}, {
+        select => [\'YEAR(year)'], as => ['y'], distinct => 1,
+    });
+
+    my $y_rs = $rs->get_column('y');
+    warnings_exist { is_deeply(
+        [sort($y_rs->all)],
+        [sort keys %$cds_per_year],
+        'Years group successfully'
+    ) } qr/
+        \QUse of distinct => 1 while selecting anything other than a column \E
+        \Qdeclared on the primary ResultSource is deprecated\E
+    /x, 'deprecation warning';
+
+    $rs->create({artist => 1, year => '0-1-1', title => 'Chocolate Rain'});
+
+    is_deeply(
+        [sort $y_rs->all],
+        [0, sort keys %$cds_per_year],
+        'Zero-year groups successful',
+    );
+
+    my $restrict_rs = $rs->search({-and => [
+        year => { '!=', 0 },
+        year => { '!=', undef },
+    ]});
+
+    warnings_exist { is_deeply(
+        [sort $restrict_rs->get_column('y')->all],
+        [sort $y_rs->all],
+        'Zero year was correctly excluded from the resultset'
+    )} qr/
+        \QUse of distinct => 1 while selecting anything other than a column \E
+        \Qdeclared on the primary ResultSource is deprecated\E
+    /x, 'deprecation warning';
+};
+
+subtest 'find hooks determine driver' => sub {
+    my $schema = MyApp::Schema->connect($dsn, $user, $pass);
+    $schema->resultset('Artist')->find(4);
+    isa_ok($schema->storage->sql_maker, 'DBIx::Class::SQLMaker::MySQL');
+};
+
+subtest 'mariadb_auto_reconnect' => sub {
+    local $ENV{MOD_PERL} = 'whyisperllikethis';
+    my $schema = MyApp::Schema->connect($dsn, $user, $pass);
+    ok(!$schema->storage->_get_dbh->{mariadb_auto_reconnect}, 'mariadb_auto_reconnect unset regardless of ENV');
+
+    my $schema_autorecon = MyApp::Schema->connect($dsn, $user, $pass, {mariadb_auto_reconnect => 1});
+    my $orig_dbh = $schema_autorecon->storage->_get_dbh;
+    weaken $orig_dbh;
+
+    ok($orig_dbh, 'Got weak $dbh ref');
+    ok($orig_dbh->{mariadb_auto_reconnect}, 'mariadb_auto_reconnect is properly set if explicitly requested');
+
+    my $rs = $schema_autorecon->resultset('Artist');
+
+    # kill our $dbh
+    $schema_autorecon->storage->_dbh(undef);
+    ok(! defined $orig_dbh, '$dbh handle is gone');
+
+    $rs->create({name => "test"});
+    ok(! defined $orig_dbh, 'DBIC operation triggered reconnect - old $dbh is gone');
+    ok($rs->find({name => "test"}), 'Expected row created');
+};
+
+done_testing;
