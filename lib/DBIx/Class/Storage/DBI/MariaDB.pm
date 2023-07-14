@@ -189,9 +189,18 @@ module, so check that for further documentation.
 =head1 USAGE
 
 Similar to other storage modules that are builtin to DBIx::Class, all you need
-to do is specify MariaDB in the DSN. For example:
+to do is ensure DBIx::Class::Storage::DBI::MariaDB is loaded and specify 
+MariaDB in the DSN. For example:
 
-    # Connect to the database
+    package MyApp::Schema;
+    use base 'DBIx::Class::Schema';
+
+    # register classes
+    # ...
+    # load mariadb storage
+    __PACKAGE__->ensure_class_loaded('DBIx::Class::Storage::DBI::MariaDB');
+
+    package MyApp;
     use MyApp::Schema;
 
     my $dsn = "dbi:MariaDB:database=mydb";

@@ -196,6 +196,5 @@ __PACKAGE__->register_class( 'CDToProducer', 'MyApp::Schema::CDToProducer' );
 __PACKAGE__->register_class( 'BooksInLibrary',
     'MyApp::Schema::BooksInLibrary' );
 __PACKAGE__->ensure_class_loaded('DBIx::Class::Storage::DBI::MariaDB');
-__PACKAGE__->ensure_class_loaded('DBIx::Class::Storage::DBI');
 
 1;
