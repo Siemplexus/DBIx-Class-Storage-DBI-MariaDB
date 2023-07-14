@@ -180,46 +180,33 @@ sub lag_behind_master {
 
 DBIx::Class::Storage::DBI::MariaDB - Storage::DBI class implementing MariaDB specifics
 
-=head1 SYNOPSIS
-
-Storage::DBI autodetects the underlying MariaDB database, and re-blesses the
-C<$storage> object into this class.
-
-  my $schema = MyApp::Schema->connect( $dsn, $user, $pass, { on_connect_call => 'set_strict_mode' } );
-
 =head1 DESCRIPTION
 
-This class implements MariaDB specific bits of L<DBIx::Class::Storage::DBI>,
-like AutoIncrement column support and savepoints. Also it augments the
-SQL maker to support the MariaDB-specific C<STRAIGHT_JOIN> join type, which
-you can use by specifying C<< join_type => 'straight' >> in the
-L<relationship attributes|DBIx::Class::Relationship::Base/join_type>
+This module adds support for MariaDB in the DBIx::Class ORM. It supports
+exactly the same parameters as the L<DBIx::Class::Storage::DBI::mysql>
+module, so check that for further documentation.
 
+=head1 USAGE
 
-It also provides a one-stop on-connect macro C<set_strict_mode> which sets
-session variables such that MariaDB behaves more predictably as far as the
-SQL standard is concerned.
+Similar to other storage modules that are builtin to DBIx::Class, all you need
+to do is specify MariaDB in the DSN. For example:
 
-=head1 STORAGE OPTIONS
+    # Connect to the database
+    use MyApp::Schema;
 
-=head2 set_strict_mode
-
-Enables session-wide strict options upon connecting. Equivalent to:
-
-  ->connect ( ... , {
-    on_connect_do => [
-      q|SET SQL_MODE = CONCAT('ANSI,TRADITIONAL,ONLY_FULL_GROUP_BY,', @@sql_mode)|,
-      q|SET SQL_AUTO_IS_NULL = 0|,
-    ]
-  });
-
-=head1 FURTHER QUESTIONS?
-
-Check the list of L<additional DBIC resources|DBIx::Class/GETTING HELP/SUPPORT>.
+    my $dsn = "dbi:MariaDB:database=mydb";
+    my $user = "noone";
+    my $pass = "topsecret";
+    my $schema = MyApp::Schema->connect($dsn, $user, $pass);
 
 =head1 COPYRIGHT AND LICENSE
 
-This module is free software L<copyright|DBIx::Class/COPYRIGHT AND LICENSE>
-by the L<DBIx::Class (DBIC) authors|DBIx::Class/AUTHORS>. You can
-redistribute it and/or modify it under the same terms as the
-L<DBIx::Class library|DBIx::Class/COPYRIGHT AND LICENSE>.
+Copyright (C) 2023 Siemplexus
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 AUTHORS
+
+Antonis Kalou E<lt>a.kalou@shadowcat.co.ukE<gt>
+Jess Robinson E<lt>j.robinson@shadowcat.co.ukE<gt>

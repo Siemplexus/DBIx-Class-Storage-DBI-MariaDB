@@ -77,8 +77,10 @@
 ^\.?appveyor.yml
 #!end included /home/rage/perl5/perlbrew/perls/perl-5.36.0/lib/5.36.0/ExtUtils/MANIFEST.SKIP
 
+# Don't include local lib
+\blocal/
 
-\b\.github$
-^\.gitignore
 ^\.perltidyrc
 ^MANIFEST\.SKIP
+# Docs generated from pod, readme is just there for github
+^README\.md

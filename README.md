@@ -1,6 +1,6 @@
 # DBIx::Class::Storage::DBI::MariaDB
 
-MariaDB integration for DBIx::Class
+Storage::DBI class implementing MariaDB specifics
 
 ## Description
 
@@ -31,7 +31,7 @@ my $schema = MyApp::Schema->connect($dsn, $user, $pass);
 
 ## Copyright and License
 
-This software is Copyright (c) 2023 by Siemplexus
+Copyright (C) 2023 Siemplexus
 
-This is free software, licensed under:
-    The Artistic License 2.0 (GPL Compatible)
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
