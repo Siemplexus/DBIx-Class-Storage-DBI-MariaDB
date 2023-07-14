@@ -24,6 +24,7 @@ jobs:
         uses: shogo82148/actions-setup-perl@v1
         with:
             perl-version: ${{ matrix.perl }}
+            install-modules: Test::Pod Test::CheckManifest
 
       - name: installdeps
         run: cpanm --notest --installdeps .
@@ -44,4 +45,5 @@ jobs:
           DBICTEST_MARIADB_DSN: "dbi:MariaDB:database=dbix_mariadb_test;host=127.0.0.1;port=${{ job.services.mariadb.ports[3306] }}"
           DBICTEST_MARIADB_USER: "user"
           DBICTEST_MARIADB_PASS: "topsecret"
+          RELEASE_TESTING: 1
         run: make disttest
