@@ -22,7 +22,7 @@ WriteMakefile(
     },
     VERSION_FROM => "lib/DBIx/Class/Storage/DBI/MariaDB.pm",
     PREREQ_PM    => {
-        'DBD::MariaDB' => '1.22',
+        'DBD::MariaDB' => '>= 1.20',
         'DBIx::Class'  => '>= 0.082840',
     },
     TEST_REQUIRES => {
