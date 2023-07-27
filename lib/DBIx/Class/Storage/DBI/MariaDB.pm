@@ -39,8 +39,6 @@ sub _dbh_last_insert_id {
 sub _prep_for_execute {
     my $self = shift;
 
-    #(my $op, $ident, $args) = @_;
-
     # Only update and delete need special double-subquery treatment
     # Insert referencing the same table (i.e. SELECT MAX(id) + 1) seems
     # to work just fine on MariaDB
