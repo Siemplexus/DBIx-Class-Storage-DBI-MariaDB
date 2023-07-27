@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use base 'DBIx::Class::Core';
 
-__PACKAGE__->table('author');
+__PACKAGE__->table('artist');
 __PACKAGE__->add_columns(
     artistid => {
         data_type         => 'INTEGER',

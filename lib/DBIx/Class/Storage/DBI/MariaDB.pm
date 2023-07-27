@@ -124,6 +124,7 @@ sub sql_maker {
 }
 
 sub sqlt_type {
+    # used by SQL::Translator
     return 'MySQL';
 }
 
@@ -133,10 +134,10 @@ sub deployment_statements {
 
     $sqltargs ||= {};
 
-    if (   !exists $sqltargs->{producer_args}{mariadb_version}
+    if (   !exists $sqltargs->{producer_args}{mysql_version}
         and my $dver = $self->_server_info->{normalized_dbms_version} )
     {
-        $sqltargs->{producer_args}{mariadb_version} = $dver;
+        $sqltargs->{producer_args}{mysql_version} = $dver;
     }
 
     $self->next::method( $schema, $type, $version, $dir, $sqltargs, @rest );
