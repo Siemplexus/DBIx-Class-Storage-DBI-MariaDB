@@ -23,9 +23,10 @@ my $schema = MyApp::Schema->connect( $dsn, $user, $pass );
 my $dbh = $schema->storage->dbh;
 
 # initialize tables
-$dbh->do("DROP TABLE IF EXISTS author");
+$dbh->do("SET foreign_key_checks=0");
+$dbh->do("DROP TABLE IF EXISTS artist");
 $dbh->do(
-    "CREATE TABLE author (
+    "CREATE TABLE artist (
     artistid INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY, 
     name VARCHAR(100),
     rank INTEGER NOT NULL DEFAULT 13,
@@ -67,6 +68,7 @@ $dbh->do(
 );
 $dbh->do("DROP TABLE IF EXISTS cd_to_producer");
 $dbh->do("CREATE TABLE cd_to_producer (cd INTEGER, producer INTEGER)");
+$dbh->do("SET foreign_key_checks=1");
 
 subtest 'sqlt_type overrides' => sub {
     my $schema = MyApp::Schema->connect( $dsn, $user, $pass );

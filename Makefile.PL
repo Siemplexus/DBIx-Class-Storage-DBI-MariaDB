@@ -29,5 +29,6 @@ WriteMakefile(
         'Test::More'      => 0,
         'Test::Warn'      => 0,
         'Test::Exception' => 0,
+        'SQL::Translator' => 0,
     },
   )
