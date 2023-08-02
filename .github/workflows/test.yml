@@ -26,22 +26,20 @@ jobs:
             perl-version: ${{ matrix.perl }}
             install-modules: Test::Pod Test::CheckManifest
 
-      - name: installdeps
+      - name: Install CPAN dependencies
         run: cpanm --notest --installdeps .
 
-      - name: build
+      - name: Build makefile
         run: perl Makefile.PL && make && make manifest
 
-      - name: make test
-        env:
+      - env:
           DBICTEST_MARIADB_DSN: "dbi:MariaDB:database=dbix_mariadb_test;host=127.0.0.1;port=${{ job.services.mariadb.ports[3306] }}"
           DBICTEST_MARIADB_USER: "user"
           DBICTEST_MARIADB_PASS: "topsecret"
           RELEASE_TESTING: 1
         run: make test
 
-      - name: make disttest
-        env:
+      - env:
           DBICTEST_MARIADB_DSN: "dbi:MariaDB:database=dbix_mariadb_test;host=127.0.0.1;port=${{ job.services.mariadb.ports[3306] }}"
           DBICTEST_MARIADB_USER: "user"
           DBICTEST_MARIADB_PASS: "topsecret"
