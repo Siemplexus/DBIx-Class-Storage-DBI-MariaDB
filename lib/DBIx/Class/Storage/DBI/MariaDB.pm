@@ -5,7 +5,7 @@ use warnings;
 
 use base qw/DBIx::Class::Storage::DBI/;
 
-our $VERSION = '0.000001';
+our $VERSION = '0.1.0';
 
 __PACKAGE__->sql_maker_class('DBIx::Class::SQLMaker::MySQL');
 __PACKAGE__->sql_limit_dialect('LimitXY');
