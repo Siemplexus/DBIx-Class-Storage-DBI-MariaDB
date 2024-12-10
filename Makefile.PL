@@ -24,6 +24,7 @@ WriteMakefile(
     PREREQ_PM    => {
         'DBD::MariaDB' => '>= 1.00',
         'DBIx::Class'  => '>= 0.082820',
+        'DBI'          => 0,
     },
     TEST_REQUIRES => {
         'Test::More'      => 0,

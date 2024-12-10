@@ -3,6 +3,7 @@ package DBIx::Class::Storage::DBI::MariaDB;
 use strict;
 use warnings;
 
+use DBI;
 use base qw/DBIx::Class::Storage::DBI/;
 
 our $VERSION = '0.1.0';
@@ -171,6 +172,13 @@ sub lag_behind_master {
     return
       shift->_get_dbh->selectrow_hashref('show slave status')
       ->{Seconds_Behind_Master};
+}
+
+sub bind_attribute_by_data_type {
+    if ( $_[1] = ~ /^(?:tiny|medium|long)blob$/i ) {
+        return DBI::SQL_BINARY;
+    }
+    return;
 }
 
 1;
