@@ -402,13 +402,14 @@ subtest 'mariadb_auto_reconnect' => sub {
 
 subtest 'blob round trip' => sub {
     my $new =
-      $schema->resultset('Artist')->create( { name => 'blob round trip', picture => "\302\243" } );
+      $schema->resultset('Artist')->create( { name => 'blob round trip', picture => "\302\243", name => "\302\243" } );
     ok( $new->artistid, 'Auto-PK worked' );
 
     my $artist2_rs =
       $schema->resultset('Artist')->search( { artistid => $new->artistid } );
 
     is($artist2_rs->single->picture, "\302\243", "Round-tripped a blob");
+    is($artist2_rs->single->name,    "\302\243", "Round-tripped non-ASCII characters");
 };
 
 done_testing;
