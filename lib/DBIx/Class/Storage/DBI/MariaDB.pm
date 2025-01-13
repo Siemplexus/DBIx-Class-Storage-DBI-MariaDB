@@ -175,7 +175,7 @@ sub lag_behind_master {
 }
 
 sub bind_attribute_by_data_type {
-    if ( $_[1] =~ /^(?:tiny|medium|long)blob$/i ) {
+    if ( $_[1] =~ /^(?:tiny|medium|long|)blob$/i ) {
         return DBI::SQL_BINARY;
     }
     return;
