@@ -18,6 +18,8 @@ my @typed = qw/
   tinyblob
   mediumblob
   longblob
+  binary
+  varbinary
   /;
 
 for my $s ( map { $_ => uc($_) } @untyped ) {
