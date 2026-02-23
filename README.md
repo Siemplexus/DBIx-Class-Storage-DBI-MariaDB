@@ -40,7 +40,7 @@ my $schema = MyApp::Schema->connect($dsn, $user, $pass);
 
 ## Copyright and License
 
-Copyright (C) 2023 Siemplexus
+Copyright (C) 2026 Siemplexus
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
