@@ -82,5 +82,3 @@
 
 ^\.perltidyrc
 ^MANIFEST\.SKIP
-# Docs generated from pod, readme is just there for github
-^README\.md
