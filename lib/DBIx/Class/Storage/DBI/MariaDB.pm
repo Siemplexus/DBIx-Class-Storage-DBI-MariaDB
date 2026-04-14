@@ -217,7 +217,7 @@ MariaDB in the DSN. For example:
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2023 Siemplexus
+Copyright (C) 2026 Siemplexus
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
@@ -225,4 +225,9 @@ it under the same terms as Perl itself.
 =head1 AUTHORS
 
 Antonis Kalou E<lt>a.kalou@shadowcat.co.ukE<gt>
+
 Jess Robinson E<lt>j.robinson@shadowcat.co.ukE<gt>
+
+Dave Lambley E<lt>dave@lambley.me.ukE<gt>
+
+tjmac1200

@@ -21,6 +21,7 @@ WriteMakefile(
         },
         x_contributors => [
           'Dave Lambley <dave@lambley.me.uk>',
+          'tjmac1200',
         ],
     },
     VERSION_FROM => "lib/DBIx/Class/Storage/DBI/MariaDB.pm",
