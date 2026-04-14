@@ -24,11 +24,11 @@ WriteMakefile(
         ],
     },
     VERSION_FROM => "lib/DBIx/Class/Storage/DBI/MariaDB.pm",
+    MIN_PERL_VERSION => '5.8.9',
     PREREQ_PM    => {
         'DBD::MariaDB' => '>= 1.00',
         'DBIx::Class'  => '>= 0.082820',
         'DBI'          => 0,
-        'perl'         => '>= 5.8.9',
     },
     TEST_REQUIRES => {
         'Test::More'      => 0,
